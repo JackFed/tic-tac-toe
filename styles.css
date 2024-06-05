@@ -15,6 +15,11 @@ h1 {
     justify-self: center;
 }
 
+button {
+    border: none;
+    background: none;
+}
+
 .container {
     width: 100%;
     display: grid;

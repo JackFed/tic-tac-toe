@@ -47,6 +47,7 @@ function GameController(
     
     const switchActive = () => activePlayer = (activePlayer === player1) ? player2 : player1;
 
+    const getActivePlayer = () => activePlayer;
     // Player win function 
     // true: all elements are winning player's
     // false: one or more elements aren't player's
@@ -103,8 +104,56 @@ function GameController(
         console.log("BOOOO... It's a draw!");
     }
 
-    return { playGame };
+    return { playGame, 
+        getActivePlayer,
+        getBoard: gameBoard.getBoard };
+}
+
+function ScreenController() {
+    const game = GameController();
+    const display = document.querySelector(".prompt");
+    const boardDiv = document.querySelector(".board");
+    // <img src="./O.svg" alt="O image">
+    const X = document.createElement("img");
+    X.setAttribute("src", "./X.svg");
+    X.setAttribute("alt", "X image");
+    const O = document.createElement("img");
+    O.setAttribute("src", "./O.svg");
+    O.setAttribute("alt", "O image");
+    // <button class="squares"><img src="./X.svg" alt="X image"></button>
+    const square = document.createElement("button");
+    square.setAttribute("class", "squares");
+
+    square.appendChild(O);
+
+    const updateScreenBoard = () => {
+        // Clear board
+        boardDiv.textContent = "";
+
+        const activePlayer = game.getActivePlayer();
+        display.textContent = `${activePlayer.name}'s turn...`;
+
+        const board = game.getBoard();
+        for(let i = 0; i < board.length; i++) {
+            for(let j = 0; j < board.length; j++) {
+                const square = document.createElement("button");
+                square.setAttribute("class", "squares");
+
+                boardDiv.appendChild(square);
+            }
+        }
+        
+        
+
+
+    }
+
+    return { updateScreenBoard }
+
+
 }
 
 // const game = GameController();
 // game.playGame();
+const screen = ScreenController();
+screen.updateScreenBoard();
