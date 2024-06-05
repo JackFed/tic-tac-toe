@@ -57,41 +57,25 @@ function GameController(
     // Called to check if the active player has won.s
     const checkWin = () => {
         board = gameBoard.getBoard();
-        const otherPlayer = (activePlayer === player1) ? player2 : player1;
-
         // Diagonals
         let mainDiag = [];
         let antiDiag = [];
-        // Check line wins
-        for (let i = 0; i < 3; i++) {
-            let verticalCount = 0;   
-            let col = []             
-            // Check row, if every value in the row is the player's return true
-            if (winningLine(board[i])) {
+
+        for (let i = 0; i < board.length; i++) {
+            const row = board[i];
+            const column = board.map(x => x[i]);
+            // If vertical or horizonal win
+            if (winningLine(row) || winningLine(column)) {
                 return true;
             } 
-            for (let j = 0; j < 3; j++) {
-                // Diagonals
-                if (i === j) {
-                    mainDiag.push(board[i][j]);                 
-                }
-                col.push(board[j][i]);
-            }
-            // Check if column line is winning
-            if (winningLine(col)) {
-                return true;
-            }
+            // Create diagonal arrays
+            mainDiag.push(board[i][i]);
+            antiDiag.push(board[i][board.length - 1 - i]);
         }
-
-        // Diagonals
-        for (let i = 0; i < board.length; i++) {
-            antiDiag.push(board[i][board.length - 1 - i])
-        }
-        console.log(antiDiag)
         const mainDiagWin = winningLine(mainDiag);
         const antiDiagWin = winningLine(antiDiag);
 
-        // if diagonal not all active player values, return false else true.
+        // If either diagonal is a win return true, else false
         return mainDiagWin || antiDiagWin;
     }
 
@@ -114,8 +98,8 @@ function GameController(
             }
             switchActive();
         }
+        console.log("BOOOO... It's a draw!");
     }
-
 
     return { switchActive, playGame }
 
