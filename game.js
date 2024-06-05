@@ -106,5 +106,5 @@ function GameController(
     return { playGame };
 }
 
-const game = GameController();
-game.playGame();
+// const game = GameController();
+// game.playGame();
