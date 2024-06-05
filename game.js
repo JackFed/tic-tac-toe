@@ -86,8 +86,10 @@ function GameController(
             let choseFreeSquare = false;
             // If they choose a filled square, try again
             while(!choseFreeSquare) {
-                const row  = prompt(`${activePlayer.name}, what row?`)
-                const col = prompt(`${activePlayer.name}, what column?`)
+                const square = prompt(`${activePlayer.name}, which cell?`)
+                const cellValues = square.split("");
+                const row  = cellValues[0];
+                const col = cellValues[1];
                 choseFreeSquare = gameBoard.markSquare(row, col, activePlayer);    
             }
             gameBoard.printBoard();
@@ -101,8 +103,7 @@ function GameController(
         console.log("BOOOO... It's a draw!");
     }
 
-    return { switchActive, playGame }
-
+    return { playGame };
 }
 
 const game = GameController();
