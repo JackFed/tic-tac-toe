@@ -61,7 +61,8 @@ function GameController(
         // Diagonals
         let mainDiag = [];
         let antiDiag = [];
-
+        // Loop through board, check rows and columns.
+        // Record values of diagonals for checking after.
         for (let i = 0; i < board.length; i++) {
             const row = board[i];
             const column = board.map(x => x[i]);
@@ -113,18 +114,6 @@ function ScreenController() {
     const game = GameController();
     const display = document.querySelector(".prompt");
     const boardDiv = document.querySelector(".board");
-    // <img src="./O.svg" alt="O image">
-    const X = document.createElement("img");
-    X.setAttribute("src", "./X.svg");
-    X.setAttribute("alt", "X image");
-    const O = document.createElement("img");
-    O.setAttribute("src", "./O.svg");
-    O.setAttribute("alt", "O image");
-    // <button class="squares"><img src="./X.svg" alt="X image"></button>
-    const square = document.createElement("button");
-    square.setAttribute("class", "squares");
-
-    square.appendChild(O);
 
     const updateScreenBoard = () => {
         // Clear board
@@ -136,24 +125,37 @@ function ScreenController() {
         const board = game.getBoard();
         for(let i = 0; i < board.length; i++) {
             for(let j = 0; j < board.length; j++) {
+                // Create the pressable squares
                 const square = document.createElement("button");
                 square.setAttribute("class", "squares");
+                square.dataset.index = [i, j];
+                // Give the square an image based on the contents of the board
+                const image = document.createElement("img");
+                const squareVal = board[i][j];
+                // If the square already is marked, set it's image link
+                if (squareVal !== "") {
+                    image.setAttribute("src", `./${squareVal}.svg`);
+                    image.setAttribute("alt", `${squareVal} image`);
+                }
 
+                square.appendChild(image);
                 boardDiv.appendChild(square);
             }
         }
         
-        
+        function clickHandlerBoard(e) {
+            const chosenSquare = e.target.dataset.index;
+            console.log(chosenSquare)
+        }
+        boardDiv.addEventListener("click", clickHandlerBoard);
 
 
     }
 
-    return { updateScreenBoard }
-
-
+    // Intial Board render
+    updateScreenBoard();
+    
 }
 
-// const game = GameController();
-// game.playGame();
-const screen = ScreenController();
-screen.updateScreenBoard();
+
+ScreenController();
