@@ -17,7 +17,6 @@ function Gameboard() {
         if (!(board[row][col] === "")){ // If square not empty, return false
             return false;
         }
-        console.log(`${row}, ${col} square marked for ${player.name}`)
         board[row][col] = player.val;
         return true; // Free square chosen, return true
     }
@@ -85,20 +84,17 @@ function GameController(p1 = "Player One", p2 = "Player Two") {
     }
 
     const playRound = (row, col) => {
-        if (gameBoard.isFull()) {
-            console.log("BOOOO... It's a draw!");
-            setWinMessage("BOOOO... It's a draw!");
-        }
         let choseFreeSquare = gameBoard.markSquare(row, col, activePlayer); 
         // If they choose a filled square, try again
         if(!choseFreeSquare) {
             return false;  
         }
-        gameBoard.printBoard();
         const win = checkWin();
         if (win) {
-            console.log(`${activePlayer.name} Wins!`);
             setWinMessage(`${activePlayer.name} Wins!`);
+        }
+        if (gameBoard.isFull()) {
+            setWinMessage("BOOOO... It's a draw!");
         }
         switchActive();
     }
@@ -113,6 +109,10 @@ function ScreenController() {
     const game = GameController();
     const display = document.querySelector(".prompt");
     const boardDiv = document.querySelector(".board");
+    // Edit name buttons
+    const editP1 = document.querySelector("button.change-name.one");
+    const editP2 = document.querySelector("button.change-name.two");
+
 
     const updateScreenBoard = () => {
         // Clear board
@@ -122,6 +122,17 @@ function ScreenController() {
         const activePlayer = game.getActivePlayer();
         display.textContent = `${activePlayer.name}'s turn...`;
 
+        makeScreenBoard();
+
+        const winMessage = game.getWinMessage();
+        if (winMessage !== "") {
+            display.textContent = winMessage;
+            boardDiv.removeEventListener("click", clickHandlerBoard);
+        }
+        
+    }
+
+    const makeScreenBoard = () => {
         const board = game.getBoard();
         for(let i = 0; i < board.length; i++) {
             for(let j = 0; j < board.length; j++) {
@@ -143,31 +154,38 @@ function ScreenController() {
                 boardDiv.appendChild(square);
             }
         }
-
-        const winMessage = game.getWinMessage();
-        console.log(winMessage)
-        if (winMessage !== "") {
-            display.textContent = winMessage;
-        }
-        
-        function clickHandlerBoard(e) {
-            // "row, col" position on screen board
-            const chosenSquare = e.target.dataset.index;
-            const arrIndex = chosenSquare.split(",");
-            const index = arrIndex.map(item => parseInt(item))
-
-            game.playRound(index[0], index[1]);
-            updateScreenBoard();
-        }
-        boardDiv.addEventListener("click", clickHandlerBoard);
-
-
     }
 
-    // Intial Board render
-    updateScreenBoard();
+    function clickHandlerBoard(e) {
+        // "row, col" position on screen board
+        const chosenSquare = e.target.dataset.index;
+        const arrIndex = chosenSquare.split(",");
+        const index = arrIndex.map(item => parseInt(item))
+
+        game.playRound(index[0], index[1]);
+        updateScreenBoard();
+    }
     
+    const clickHandlerRename = (e) => {
+        let classes = e.target.className;
+        const classList = classes.split(" ");
+        const name = prompt("Enter a new name");
+        if (classList.includes("one")) {
+            const p1Name = document.querySelector("h2.player.one");
+            p1Name.textContent = name;
+        } else {
+            const p2Name = document.querySelector("h2.player.two");
+            p2Name.textContent = name;
+        }
+    }
+    
+    // Add event listeners
+    boardDiv.addEventListener("click", clickHandlerBoard);
+    editP1.addEventListener("click", clickHandlerRename);
+    editP2.addEventListener("click", clickHandlerRename);
+
+    return {updateScreenBoard};
 }
 
 
-ScreenController();
+ScreenController().updateScreenBoard();
