@@ -14,10 +14,10 @@ function Gameboard() {
 
     // Marks square based on row and column choosen and player marking
     const markSquare = (row, col, player) => {
-        if (!(board[row][col] === "")){ // If square unavailable, return false
+        if (!(board[row][col] === "")){ // If square not empty, return false
             return false;
         }
-        console.log(board[row][col])
+        console.log(`${row}, ${col} square marked for ${player.name}`)
         board[row][col] = player.val;
         return true; // Free square chosen, return true
     }
@@ -35,13 +35,16 @@ function Gameboard() {
     return { getBoard, markSquare, isFull, printBoard };
 }
 
-function GameController(
-    p1 = "Player One", 
-    p2 = "Player Two"
-) {
+function GameController(p1 = "Player One", p2 = "Player Two") {
     const gameBoard = Gameboard();
     const player1 = {name: p1, val: "X"}
     const player2 = {name: p2, val: "O"}
+
+    let winMessage = "";
+
+    const setWinMessage = (message) => winMessage = message;
+
+    const getWinMessage = () => winMessage;
 
     let activePlayer = player1;
     
@@ -57,7 +60,7 @@ function GameController(
 
     // Called to check if the active player has won.s
     const checkWin = () => {
-        board = gameBoard.getBoard();
+        const board = gameBoard.getBoard();
         // Diagonals
         let mainDiag = [];
         let antiDiag = [];
@@ -81,33 +84,29 @@ function GameController(
         return mainDiagWin || antiDiagWin;
     }
 
-    const playGame = () => {
-        gameBoard.printBoard();
-        while (!gameBoard.isFull()) {
-            console.log(`${activePlayer.name}'s turn...`)
-            let choseFreeSquare = false;
-            // If they choose a filled square, try again
-            while(!choseFreeSquare) {
-                const square = prompt(`${activePlayer.name}, which cell?`)
-                const cellValues = square.split("");
-                const row  = cellValues[0];
-                const col = cellValues[1];
-                choseFreeSquare = gameBoard.markSquare(row, col, activePlayer);    
-            }
-            gameBoard.printBoard();
-            const win = checkWin();
-            if (win) {
-                console.log(`${activePlayer.name} Wins!`);
-                return;
-            }
-            switchActive();
+    const playRound = (row, col) => {
+        if (gameBoard.isFull()) {
+            console.log("BOOOO... It's a draw!");
+            setWinMessage("BOOOO... It's a draw!");
         }
-        console.log("BOOOO... It's a draw!");
+        let choseFreeSquare = gameBoard.markSquare(row, col, activePlayer); 
+        // If they choose a filled square, try again
+        if(!choseFreeSquare) {
+            return false;  
+        }
+        gameBoard.printBoard();
+        const win = checkWin();
+        if (win) {
+            console.log(`${activePlayer.name} Wins!`);
+            setWinMessage(`${activePlayer.name} Wins!`);
+        }
+        switchActive();
     }
 
-    return { playGame, 
+    return { playRound, 
         getActivePlayer,
-        getBoard: gameBoard.getBoard };
+        getBoard: gameBoard.getBoard,
+        getWinMessage };
 }
 
 function ScreenController() {
@@ -119,6 +118,7 @@ function ScreenController() {
         // Clear board
         boardDiv.textContent = "";
 
+        // Update active player display
         const activePlayer = game.getActivePlayer();
         display.textContent = `${activePlayer.name}'s turn...`;
 
@@ -131,6 +131,7 @@ function ScreenController() {
                 square.dataset.index = [i, j];
                 // Give the square an image based on the contents of the board
                 const image = document.createElement("img");
+                image.dataset.index = [i, j];
                 const squareVal = board[i][j];
                 // If the square already is marked, set it's image link
                 if (squareVal !== "") {
@@ -142,10 +143,21 @@ function ScreenController() {
                 boardDiv.appendChild(square);
             }
         }
+
+        const winMessage = game.getWinMessage();
+        console.log(winMessage)
+        if (winMessage !== "") {
+            display.textContent = winMessage;
+        }
         
         function clickHandlerBoard(e) {
+            // "row, col" position on screen board
             const chosenSquare = e.target.dataset.index;
-            console.log(chosenSquare)
+            const arrIndex = chosenSquare.split(",");
+            const index = arrIndex.map(item => parseInt(item))
+
+            game.playRound(index[0], index[1]);
+            updateScreenBoard();
         }
         boardDiv.addEventListener("click", clickHandlerBoard);
 
