@@ -47,27 +47,52 @@ function GameController(
     
     const switchActive = () => activePlayer = (activePlayer === player1) ? player2 : player1;
 
+    // Player win function 
+    // true: all elements are winning player's
+    // false: one or more elements aren't player's
+    const winningLine = (line) => {
+        return line.every(val => val === activePlayer.val)
+    }
+
     // Called to check if the active player has won.s
     const checkWin = () => {
         board = gameBoard.getBoard();
         const otherPlayer = (activePlayer === player1) ? player2 : player1;
+
+        // Diagonals
+        let mainDiag = [];
+        let antiDiag = [];
         // Check line wins
         for (let i = 0; i < 3; i++) {
-            let horizontalCount = 0
-            let verticalCount = 0;
+            let verticalCount = 0;   
+            let col = []             
+            // Check row, if every value in the row is the player's return true
+            if (winningLine(board[i])) {
+                return true;
+            } 
             for (let j = 0; j < 3; j++) {
-                // Check row
-                if (board[i][j] === activePlayer.val) {
-                    horizontalCount++;
-                } else if (board[j][i] === activePlayer.val) { // Check column
-                    verticalCount++;
+                // Diagonals
+                if (i === j) {
+                    mainDiag.push(board[i][j]);                 
                 }
+                col.push(board[j][i]);
             }
-            if (horizontalCount === 3 || verticalCount === 3) {
+            // Check if column line is winning
+            if (winningLine(col)) {
                 return true;
             }
         }
-        return false;
+
+        // Diagonals
+        for (let i = 0; i < board.length; i++) {
+            antiDiag.push(board[i][board.length - 1 - i])
+        }
+        console.log(antiDiag)
+        const mainDiagWin = winningLine(mainDiag);
+        const antiDiagWin = winningLine(antiDiag);
+
+        // if diagonal not all active player values, return false else true.
+        return mainDiagWin || antiDiagWin;
     }
 
     const playGame = () => {
