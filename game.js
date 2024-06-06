@@ -148,7 +148,7 @@ function ScreenController() {
                 const squareVal = board[i][j];
                 // If the square already is marked, set it's image link
                 if (squareVal !== "") {
-                    image.setAttribute("src", `./${squareVal}.svg`);
+                    image.setAttribute("src", `./images/${squareVal}.svg`);
                     image.setAttribute("alt", `${squareVal} image`);
                 }
 
