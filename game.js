@@ -106,7 +106,7 @@ function GameController(p1 = "Player One", p2 = "Player Two") {
 }
 
 function ScreenController() {
-    const game = GameController();
+    let game = GameController();
     const display = document.querySelector(".prompt");
     const boardDiv = document.querySelector(".board");
     // Edit name buttons
@@ -117,6 +117,7 @@ function ScreenController() {
     const updateScreenBoard = () => {
         // Clear board
         boardDiv.textContent = "";
+        boardDiv.addEventListener("click", clickHandlerBoard);
 
         // Update active player display
         const activePlayer = game.getActivePlayer();
@@ -128,6 +129,7 @@ function ScreenController() {
         if (winMessage !== "") {
             display.textContent = winMessage;
             boardDiv.removeEventListener("click", clickHandlerBoard);
+            addRestartBtn();
         }
         
     }
@@ -178,9 +180,25 @@ function ScreenController() {
             p2Name.textContent = name;
         }
     }
+
+    const addRestartBtn = () => {
+        const display = document.querySelector(".display");
+        const restartBtn = document.createElement("button");
+        restartBtn.setAttribute("class", "restart");
+        restartBtn.textContent = "Restart";
+        restartBtn.addEventListener("click", clickHandlerRestart);
+        display.appendChild(restartBtn);
+    }
     
+    const clickHandlerRestart = () => {
+        game = GameController();
+        updateScreenBoard();
+        const display = document.querySelector(".display");
+        const restartBtn = document.querySelector(".restart");
+        display.removeChild(restartBtn);
+    }
+
     // Add event listeners
-    boardDiv.addEventListener("click", clickHandlerBoard);
     editP1.addEventListener("click", clickHandlerRename);
     editP2.addEventListener("click", clickHandlerRename);
 
